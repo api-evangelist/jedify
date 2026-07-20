@@ -1,0 +1,49 @@
+generated: '2026-07-19'
+method: searched
+source: https://docs.jedify.com/api-reference/overview
+docs: https://docs.jedify.com/mcp/authentication
+summary:
+  types: [apiKey, oauth2]
+  api_key_in: [header]
+  oauth2_flows: [browser-login]
+schemes:
+  - name: apiKeyHeader
+    type: apiKey
+    in: header
+    parameter_name: X-API-Key
+    description: >-
+      Required on every REST API request to https://be.jedify.com/api. Keys are
+      created in the Jedify app at app.jedify.com/settings/api-keys and are bound
+      to the creating user's identity and permissions. Published/hosted apps use a
+      single shared key, so all viewers see data at that key's permission level.
+    created_at: https://app.jedify.com/settings/api-keys
+    sources: [docs.jedify.com/api-reference/overview]
+  - name: browserLogin
+    type: oauth2
+    scheme: browser-login
+    description: >-
+      Interactive OAuth sign-in used by desktop MCP clients (Claude Desktop, Cursor)
+      via the @jedify/mcp-auth proxy. Sessions refresh automatically. Identity is
+      handled by Descope (observed in the app.jedify.com client bundle).
+    identity_provider: Descope
+    sources: [docs.jedify.com/mcp/authentication]
+  - name: mcpApiKey
+    type: apiKey
+    in: header
+    description: >-
+      MCP proxy alternative to browser login; provide JEDIFY_API_KEY (requires
+      @jedify/mcp-auth v1.1.0+). Skips browser login for headless environments.
+    sources: [docs.jedify.com/mcp/authentication]
+enterprise_sso:
+  supported: true
+  methods: [SAML, Azure AD]
+  rbac: true
+  docs:
+    sso_setup: https://docs.jedify.com/settings/sso-setup
+    azure_ad_sso: https://docs.jedify.com/settings/azure-ad-sso
+    rbac: https://docs.jedify.com/settings/rbac
+    idp_groups: https://docs.jedify.com/settings/idp-groups
+notes: >-
+  No OpenAPI securitySchemes were harvestable (the published openapi.json is the
+  default Mintlify Plant Store sample, not Jedify's API), so this profile was
+  searched from the docs rather than derived.
