@@ -1,0 +1,44 @@
+generated: '2026-07-19'
+method: derived
+source: https://docs.jedify.com/api-reference/endpoints
+description: >-
+  Entity graph derived from Jedify's public REST API reference and MCP tool surface.
+  No harvestable OpenAPI schema set exists (the published openapi.json is the default
+  Mintlify sample), so relationships are derived from the documented session/inquiry
+  request flow and the semantic-layer concepts, not from $ref links.
+entities:
+  - name: Session
+    description: Groups related questions/inquiries for shared context.
+    id_field: session_id
+    created_by: "POST /session/new"
+  - name: Inquiry
+    description: A single natural-language question submitted into a session, processed asynchronously.
+    id_field: inquiry_id
+    created_by: "POST /session/{session_id}/inquiry/agent"
+    fields: [status, answer, sql_query, data, chart, explanation]
+  - name: SemanticEntity
+    description: >-
+      A concept, metric, or dimension in the Semantic Fusion layer (the AI-ready
+      contextual data model), searchable and retrievable via the MCP tools.
+    id_field: node_id
+  - name: SemanticFunction
+    description: A saved, validated, reusable question exposed via Builder mode.
+  - name: DataConnector
+    description: A native connection to a data source (Snowflake, BigQuery, Redshift, Databricks, Athena, dbt, Looker, Tableau, Preset, Sigma, Redash).
+relationships:
+  - from: Inquiry
+    to: Session
+    kind: belongs_to
+    via: session_id
+  - from: Session
+    to: Inquiry
+    kind: has_many
+    via: session_id
+  - from: SemanticFunction
+    to: SemanticEntity
+    kind: references
+    via: node_id
+notes: >-
+  Derived, low-confidence: Jedify does not publish a machine-readable object
+  reference, so entity fields beyond the documented inquiry result shape are inferred
+  from the docs narrative.

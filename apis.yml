@@ -1,22 +1,72 @@
 aid: jedify
 name: Jedify
-description: 'Jedify is a company surfaced as a portfolio company of norwest-venture-partners and added
-  to the API Evangelist network as a stub for enrichment. Sector: unknown. This profile is a lead awaiting
-  the enrichment pipeline.'
+description: >-
+  Jedify is an enterprise AI platform that fuses business context with multi-source
+  data into an AI-ready contextual "context layer" (Semantic Fusion) so companies can
+  run grounded, natural-language analytics and autonomous data agents across their data
+  lakes, warehouses, BI tools, databases, CRMs, and documents. It exposes an asynchronous
+  session/inquiry REST API at be.jedify.com/api (X-API-Key auth), a published Model Context
+  Protocol (MCP) server with Asker, Editor, and Builder modes for connecting Claude, Cursor,
+  and other agents, plus native data connectors (Snowflake, BigQuery, Redshift, Databricks,
+  Athena, dbt, Looker, Tableau) and embedded surfaces for Looker and Slack. Jedify raised a
+  $24M Series A and is backed by Norwest Venture Partners.
 url: https://raw.githubusercontent.com/api-evangelist/jedify/refs/heads/main/apis.yml
 x-type: company
 x-source: vc-portfolio
 x-backed-by:
 - norwest-venture-partners
-x-tier: stub
-x-tier-reason: portfolio-lead
+x-tier: profiled
+x-tier-reason: enriched-from-stub
+accessModel:
+  pricing: unknown
+  onboarding: self-serve
+  trial: false
+  try_now: false
+  public: false
+  label: Self-serve signup
+  confidence: medium
+  source:
+  - authentication
+  generated: '2026-07-22'
+  method: derived
 specificationVersion: '0.20'
 created: '2026-07-17'
-modified: '2026-07-17'
+modified: '2026-07-19'
+image: https://jedify.com/wp-content/uploads/logo01-1-1.svg
 tags:
 - Company
-- Unknown
-apis: []
+- Artificial Intelligence
+- Data Analytics
+- Business Intelligence
+- Semantic Layer
+- Context Layer
+- Data Agents
+- MCP
+- Enterprise AI
+- Natural Language Query
+apis:
+- name: Jedify Data Intelligence API
+  description: >-
+    Asynchronous REST API for asking natural-language analytics questions against
+    connected data. Create a session, submit an inquiry, then poll or long-poll for a
+    grounded answer with generated SQL, structured data, and chart metadata.
+  humanURL: https://docs.jedify.com/api-reference/overview
+  baseURL: https://be.jedify.com/api
+  tags:
+  - Data Intelligence
+  - Natural Language Query
+  - Analytics
+  properties:
+  - type: APIReference
+    url: https://docs.jedify.com/api-reference/overview
+  - type: Authentication
+    url: authentication/jedify-authentication.yml
+  - type: Conventions
+    url: conventions/jedify-conventions.yml
+  - type: ErrorCatalog
+    url: errors/jedify-problem-types.yml
+  - type: DataModel
+    url: data-model/jedify-data-model.yml
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
@@ -25,3 +75,47 @@ maintainers:
 common:
 - type: Website
   url: https://jedify.com
+- type: DeveloperPortal
+  url: https://docs.jedify.com
+- type: Documentation
+  url: https://docs.jedify.com
+- type: APIReference
+  url: https://docs.jedify.com/api-reference/overview
+- type: GettingStarted
+  url: https://docs.jedify.com/getting-started/introduction
+- type: SignUp
+  url: https://app.jedify.com/sign-up
+- type: Blog
+  url: https://jedify.com/news/
+- type: PrivacyPolicy
+  url: https://jedify.com/privacy/
+- type: ChangeLog
+  url: https://docs.jedify.com/changelog
+- type: MCPServer
+  url: mcp/jedify-mcp.yml
+- type: LLMsTxt
+  url: llms/jedify-llms.txt
+- type: Authentication
+  url: authentication/jedify-authentication.yml
+- type: Packages
+  url: packages/jedify-packages.yml
+- type: Conventions
+  url: conventions/jedify-conventions.yml
+- type: ErrorCatalog
+  url: errors/jedify-problem-types.yml
+- type: DataModel
+  url: data-model/jedify-data-model.yml
+- type: Components
+  url: components/jedify-components.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: ChangeLog
+  name: Changelog artifact
+  url: changelog/jedify-changelog.yml
+- type: DomainSecurity
+  url: security/jedify-domain-security.yml
+x-enrichment:
+  date: '2026-07-19'
+  status: backfilled
+  pass: local-v1
+  note: backfilled from .gitignore signal + verified work evidence

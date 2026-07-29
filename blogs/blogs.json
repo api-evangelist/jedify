@@ -1,0 +1,14 @@
+{
+  "repo": "jedify",
+  "feeds": [
+    {
+      "source": "https://app.jedify.com/sign-up",
+      "feed_url": "https://app.jedify.com/sign-up",
+      "title": "",
+      "saved": 0,
+      "method": "none"
+    }
+  ],
+  "post_count": 0,
+  "fetched": "2026-07-25T15:00:33Z"
+}

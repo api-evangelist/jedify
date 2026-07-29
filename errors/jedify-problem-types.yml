@@ -1,0 +1,39 @@
+generated: '2026-07-19'
+method: searched
+source: https://docs.jedify.com/api-reference/endpoints
+format: status-field
+envelope_field: status.general
+description: >-
+  Jedify's asynchronous REST API does not use RFC 9457 problem+json. Outcome is
+  conveyed by the status.general field on the inquiry result, plus HTTP-level codes
+  for the polling transport.
+http_status_codes:
+  - status: 200
+    meaning: Successful response.
+  - status: 408
+    meaning: Long-poll (result) timeout while the inquiry is still processing; retry is safe.
+inquiry_states:
+  - state: processing
+    terminal: false
+    meaning: The inquiry is still being handled.
+  - state: done
+    terminal: true
+    meaning: Successful completion; results available.
+  - state: failed
+    terminal: true
+    meaning: Processing error.
+  - state: timeout
+    terminal: true
+    meaning: Server-side timeout.
+  - state: stopped
+    terminal: true
+    meaning: The inquiry was cancelled by the user.
+  - state: out_of_domain
+    terminal: true
+    meaning: The question is outside the scope of the connected data.
+  - state: no_data
+    terminal: true
+    meaning: The query returned empty results.
+notes: >-
+  Derived/searched from the public endpoints reference. This is an error/outcome
+  registry, not a payments decline-code surface (Jedify is not a payments provider).

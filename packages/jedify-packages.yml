@@ -1,0 +1,21 @@
+generated: '2026-07-19'
+method: searched
+source: https://www.npmjs.com/package/@jedify/mcp-auth
+packages:
+  - language: javascript
+    registry: npm
+    name: "@jedify/mcp-auth"
+    version: 1.1.1
+    url: https://www.npmjs.com/package/@jedify/mcp-auth
+    repository: https://github.com/jedify/jedify-mcp-auth
+    install: npx -y @jedify/mcp-auth
+    description: OAuth authentication proxy for Jedify MCP servers.
+    official: true
+    role: mcp-auth-proxy
+notes: >-
+  Jedify's only published client library is the @jedify/mcp-auth proxy, which
+  brokers OAuth/API-key auth between a local MCP client (Claude Desktop, Cursor)
+  and the remote Jedify MCP server. The docs reference a Builder-mode SDK for
+  calling semantic functions from app code (docs.jedify.com/mcp/builder/sdk-reference),
+  but no standalone, separately-published SDK package was found in the public
+  registries as of this pass. No first-party REST SDK (Python/Java/Go/etc.) is published.

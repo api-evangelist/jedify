@@ -1,0 +1,96 @@
+generated: '2026-07-19'
+method: searched
+status: published
+source: https://docs.jedify.com/mcp/overview
+server:
+  name: jedify
+  transport: http
+  # Remote HTTP MCP endpoints (streamable). Asker is the default mode.
+  urls:
+    asker: https://be.jedify.com/mcp/message
+    builder: https://be.jedify.com/mcp/message?mode=builder
+  # Local proxy that brokers auth (OAuth browser login or JEDIFY_API_KEY) to the remote server
+  proxy:
+    package: "@jedify/mcp-auth"
+    registry: npm
+    command: npx
+    args: ["-y", "@jedify/mcp-auth"]
+    builder_flag: "--builder"
+  authentication:
+    methods:
+      - browser-login   # OAuth, default on first use
+      - api-key         # JEDIFY_API_KEY env var, requires @jedify/mcp-auth v1.1.0+
+    api_key_created_at: https://app.jedify.com/settings/api-keys
+docs:
+  overview: https://docs.jedify.com/mcp/overview
+  connect: https://docs.jedify.com/mcp/connect
+  authentication: https://docs.jedify.com/mcp/authentication
+  modes: https://docs.jedify.com/mcp/modes
+modes:
+  - name: asker
+    default: true
+    description: Ask questions in plain language and get data back.
+  - name: editor
+    description: Propose changes to the semantic layer for review.
+  - name: builder
+    description: Build data apps and dashboards using Jedify's semantic functions (includes every Asker tool plus more).
+tools:
+  # Asker mode (source: https://docs.jedify.com/mcp/asker/tools-reference)
+  - name: contextualize
+    mode: asker
+    description: Load the account's context and what data is available.
+  - name: data_collection_strategy
+    mode: asker
+    description: Plan a multi-step analysis before querying.
+  - name: ask_a_single_question
+    mode: asker
+    description: Ask one question; a session is created automatically.
+  - name: ask_questions
+    mode: asker
+    description: Ask several questions in parallel, each in its own session.
+  - name: ask_a_research_question
+    mode: asker
+    description: Run a multi-step autonomous investigation.
+  - name: stop_question
+    mode: asker
+    description: Stop a running inquiry.
+  - name: check_question_status
+    mode: asker
+    description: Check whether an inquiry has finished.
+  - name: wait_for_completion
+    mode: asker
+    description: Wait for inquiries to finish, then return their results.
+  - name: get_questions_data
+    mode: asker
+    description: Retrieve full results for one or more inquiries.
+  - name: search_semantic_layer
+    mode: asker
+    description: Find entities by name (e.g. 'revenue', 'churn').
+  - name: get_semantic_layer_entities
+    mode: asker
+    description: Get full details for up to 10 entities.
+  - name: run_sql_query
+    mode: asker
+    description: Run a read-only SQL SELECT against the data source.
+  - name: logout
+    mode: asker
+    description: End the session and clear authentication.
+  # Builder mode (source: https://docs.jedify.com/mcp/builder/tools-reference)
+  - name: list_semantic_functions
+    mode: builder
+    description: Find functions that already exist.
+  - name: get_function_schema
+    mode: builder
+    description: Read a function's parameters and output.
+  - name: call_semantic_function
+    mode: builder
+    description: Try a function out while building.
+  - name: create_semantic_function
+    mode: builder
+    description: Save a validated question as a reusable function.
+  - name: get_sdk_info
+    mode: builder
+    description: Look up how to call functions from app code.
+  - name: process_verification
+    mode: builder
+    description: Self-check the work before reporting done.

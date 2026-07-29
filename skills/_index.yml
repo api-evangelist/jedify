@@ -1,0 +1,16 @@
+generated: '2026-07-19'
+method: generated
+source: https://docs.jedify.com/api-reference/endpoints
+skills:
+  - file: jedify-ask-a-question.md
+    name: Ask Jedify a question and get the answer
+    api: https://be.jedify.com/api
+    operations:
+      - "POST /session/new"
+      - "POST /session/{session_id}/inquiry/agent"
+      - "GET /inquiry/{inquiry_id}/status"
+      - "GET /inquiry/{inquiry_id}/result"
+notes: >-
+  Skills are grounded in Jedify's documented REST operations and MCP tools. No
+  harvestable OpenAPI with operationIds exists (the published openapi.json is the
+  default Mintlify sample), so operations are named by their documented method+path.

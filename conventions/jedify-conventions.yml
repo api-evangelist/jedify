@@ -1,0 +1,51 @@
+generated: '2026-07-19'
+method: searched
+source: https://docs.jedify.com/api-reference/endpoints
+docs: https://docs.jedify.com/api-reference/overview
+authentication:
+  style: api-key-header
+  header: X-API-Key
+  see: authentication/jedify-authentication.yml
+base_url: https://be.jedify.com/api
+interaction_model:
+  style: asynchronous-session-inquiry
+  description: >-
+    Natural-language questions run against a data warehouse are asynchronous.
+    Callers create a session, submit an inquiry (question) into that session,
+    then poll status or long-poll for the result.
+  flow:
+    - "POST /session/new -> returns session_id"
+    - "POST /session/{session_id}/inquiry/agent -> returns inquiry_id"
+    - "GET /inquiry/{inquiry_id}/status -> client-side polling of state + results"
+    - "GET /inquiry/{inquiry_id}/result -> server-side long-poll until completion"
+  sessions: Sessions group related questions together for shared context.
+polling:
+  long_poll_endpoint: "GET /inquiry/{inquiry_id}/result"
+  status_endpoint: "GET /inquiry/{inquiry_id}/status"
+  timeout_behavior: >-
+    A long-poll that exceeds the server window returns HTTP 408 while the inquiry
+    is still processing; retrying the request is safe.
+  terminal_states: [done, failed, timeout, stopped, out_of_domain, no_data]
+  non_terminal_states: [processing]
+error_envelope:
+  style: status-field
+  field: status.general
+  http_codes:
+    "200": Successful response.
+    "408": Long-poll timeout; inquiry still processing, retry safe.
+  see: errors/jedify-problem-types.yml
+idempotency:
+  documented: false
+  note: >-
+    No idempotency-key header or idempotency contract is documented for the REST API.
+pagination:
+  documented: false
+metadata:
+  documented: false
+versioning:
+  scheme: none-documented
+  note: The REST API is served under the /api path prefix with no explicit version segment documented.
+notes: >-
+  Cross-cutting semantics captured from the public API reference. Idempotency,
+  pagination, and request-id tracing are not documented, so no Idempotency
+  pointer is emitted.

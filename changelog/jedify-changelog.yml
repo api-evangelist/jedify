@@ -1,0 +1,19 @@
+generated: '2026-07-19'
+method: searched
+source: https://docs.jedify.com/changelog
+scheme: dated
+current: "@jedify/mcp-auth v1.1.1"
+entries:
+  - date: '2026-05-31'
+    version: "@jedify/mcp-auth v1.1.0"
+    tag: MCP
+    breaking: false
+    highlights:
+      - Added API-key authentication for the Jedify MCP proxy as an alternative to browser-based login.
+      - Set the JEDIFY_API_KEY environment variable to skip browser login (headless / automated setups).
+      - Falls back to standard browser login when the environment variable is not set.
+      - API keys must be provisioned by a Jedify administrator.
+notes: >-
+  Jedify publishes a dated changelog at docs.jedify.com/changelog. Only the most
+  recent published entry is captured here (recent-window policy); the live page is
+  the source of truth.

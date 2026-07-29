@@ -1,0 +1,26 @@
+generated: '2026-07-19'
+method: searched
+source: https://docs.jedify.com/settings/looker/overview
+description: >-
+  Client-side / embedded surfaces Jedify ships for consuming its conversational
+  data intelligence inside other tools. Distinct from server-side SDKs.
+components:
+  - family: embedded-analytics
+    name: Embedded AI Analytics
+    description: >-
+      Embed Jedify's AI analytics / conversational data intelligence into
+      customer-facing products.
+    docs: https://jedify.com/
+  - family: bi-extension
+    name: Looker Extension
+    description: Jedify capabilities embedded inside Looker as a native extension.
+    docs: https://docs.jedify.com/settings/looker/overview
+    install: https://docs.jedify.com/settings/looker/installation
+  - family: chat-app
+    name: Slack App
+    description: Ask Jedify questions and get data answers from within Slack.
+    docs: https://docs.jedify.com/settings/slack/overview
+    install: https://docs.jedify.com/settings/slack/installation
+notes: >-
+  Grouped from the docs settings/integration pages. These are hosted/embedded
+  surfaces, not npm-distributed UI element libraries.
