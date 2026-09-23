@@ -1,0 +1,30 @@
+# Front Door AI Index — jedify — 2026-09-17
+# AI vocabulary counted on the provider's root page. Generated; do not edit.
+# `score` is null unless ownership is `own` — see front_door_ai.py.
+front_door_ai:
+  slug: jedify
+  lexicon_version: '1.0'
+  probed_at: '2026-09-17'
+  host: jedify.com
+  final_host: jedify.com
+  ownership: own
+  owner: jedify
+  shares_host_with: null
+  inherited_from: null
+  verdict: scored
+  score: 46
+  host_score: 46
+  density: 18.25
+  words: 2520
+  tiers:
+    agentic: 15
+    core: 31
+    model: 0
+  ambiguous: 23
+  top_terms:
+    AI: 30
+    agent: 23
+    agentic: 9
+    AI agent: 3
+    MCP: 3
+    LLMs: 1
