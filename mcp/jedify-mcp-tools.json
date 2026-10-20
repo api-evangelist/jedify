@@ -1,0 +1,602 @@
+{
+  "endpoint": "https://be.jedify.com/mcp/message",
+  "captured": "2026-10-20",
+  "method": "initialize + tools/list (anonymous, no tool called; roadmap#992)",
+  "protocol_version": "2025-06-18",
+  "server_info": {
+    "name": "Jedify MCP Server",
+    "version": "2.14.7",
+    "websiteUrl": "https://docs.jedify.com/mcp/overview"
+  },
+  "result": {
+    "tools": [
+      {
+        "name": "contextualize",
+        "description": "Bootstrap your understanding of the Jedify account and available data. This tool provides both company context (business model, glossary, metadata) AND an overview of all available semantic layer entities in a single call. This replaces the need to call 'Get account info' and 'Get semantic layer summary' separately. The response also carries `account_id`, the account your credential resolves to, so you can confirm you are working against the intended account before asking anything.\n\nWhen to use: MANDATORY FIRST STEP: Always use this FIRST before any other tools to establish the foundation for your analysis.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "_meta": {
+          "_fastmcp": {
+            "tags": []
+          }
+        }
+      },
+      {
+        "name": "ask_a_single_question",
+        "description": "Quick question tool that automatically creates a new session and asks a question in one step. This is ideal for single questions or when you don't need to manage sessions manually.\n\nWhen to use: Use this when:\n- You have a single question to ask\n- You don't need to ask follow-up questions in the same session\n- You want a simpler workflow\n\n🚨 BUILDER MODE: Use ONLY for function creation (exploration phase). Get inquiry_id to use with create_semantic_function. NEVER generate dashboard code that calls this tool - use jedify.call() instead.\n\nHow to use: 🎯 JEDIFY QUESTION MASTERY PRINCIPLES:\n\n0. **MANDATORY PRE-INVESTIGATION CHECKPOINT**\n   - STEP 1: Check if clarification needed (see detailed protocol in system instructions)\n   - STEP 2: Evaluate if strategy confirmation needed (see Strategy Confirmation Protocol in system instructions)\n   - STEP 3: Execute investigation with quality checks\n\n   **Clarification Protocol (Do this first, only once)**:\n   - After contextualizing, verify that critical terms in the user's question exist in the account context or semantic layer\n   - If the user references a SPECIFIC entity using \"the\", \"this\", \"our\" that doesn't exist and has no obvious interpretation, ask for clarification ONCE\n   - After asking once (or if terms are clear), proceed with best interpretation - never ask for clarification again\n\n   **Strategy Confirmation Protocol (Before asking 8+ questions)**:\n   - If planning 8+ queries, multi-phase investigation, or 2+ risk factors present → Confirm strategy with user first\n   - Present proposed approach with alternatives\n   - Wait for user approval before executing\n   - See full protocol in system instructions\n\n1. **SEMANTIC LAYER AWARENESS**\n   - Every question must target entities that exist in the semantic layer and be fully answerable by the entities (i.e. - the SQL query must be able to answer the question)\n   - Verify entity availability BEFORE asking (use get_semantic_layer_entities)\n   - Check entity's SQL query and attributes support your question's requirements\n\n2. **EXTREME SPECIFICITY**\n   - Include EXACT names: \"Deal Genius\" not \"that publisher\"\n   - Include EXACT dates: \"May 2024\" not \"recently\"\n   - Include EXACT metrics: \"monthly recurring revenue\" not \"revenue\"\n   - Include EXACT filters when known: \"for Enterprise tier customers\"\n\n3. **PROGRESSIVE INTELLIGENCE**\n   - Start broad, then drill down based on results\n   - Each question should build on insights from previous answers\n   - Never ask what you already know from previous responses\n   - Use discovered values (e.g., publisher names, date ranges) in follow-up questions\n\n4. **FAILURE INTROSPECTION (zero-row response)**\n   On zero rows, the status response includes `grounding_results` (how terms resolved) and `used_columns_with_sample_data` (actual values in filtered columns)\n   Guidance:\n   - Search in `grounding_results` and `used_columns_with_sample_data` any inforamtion just could be evidence and reassurance that we might want to retry.\n   - Maximum ONE retry per question. A second zero-row response = ACCEPT NO-DATA.\n   - Every retry MUST cite the specific diagnostic field and value that justifies it. No citation → ACCEPT NO-DATA.\n   - When accepting, tell the user *why* using evidence (\"status column only contains 'ACTIVE'/'CANCELED'\"). Never say \"no data\" without citing the diagnostic.\n\n5. **CONTEXT UTILIZATION**\n   - Use company glossary terms correctly\n   - Respect business model specifics (SaaS metrics, publisher relationships, etc.)\n   - Apply learned context from contextualize and previous questions\n\n📝 HOW TO FORMULATE PERFECT JEDIFY QUESTIONS:\n\n**BEFORE YOU ASK:**\n1. Check semantic layer has the entity (get_semantic_layer_entities)\n2. Verify entity's SQL includes needed fields\n3. Confirm date ranges in entity's data coverage\n\n**QUESTION STRUCTURE:**\n[Metric] + [Specific Entity] + [Time Period] + [Optional Filters] + [Optional Comparison]\n\n**EXAMPLES BY TYPE:**\n\n📊 **Metric Analysis:**\n✅ \"What is the monthly recurring revenue for Deal Genius in Q2 2024?\"\n✅ \"Show me the churn rate for Enterprise customers from January to June 2024\"\n❌ \"What's our revenue?\" (too vague)\n❌ \"Show churn\" (missing specifics)\n\n🔍 **Trend Investigation:**\n✅ \"How has Deal Genius's product adoption changed month-over-month from January to May 2024?\"\n✅ \"Compare subscription revenue growth between Q1 and Q2 2024 for all publishers\"\n❌ \"Is revenue growing?\" (not specific)\n❌ \"Show trends\" (what trends? for whom? when?)\n\n🎯 **Root Cause Analysis:**\n✅ \"What were the top 5 reasons for customer churn in May 2024 for the SMB segment?\"\n✅ \"Which product features had the lowest usage among churned Enterprise customers in Q2 2024?\"\n❌ \"Why are we losing customers?\" (too broad)\n❌ \"What's wrong with our product?\" (not measurable)\n\n📈 **Comparative Analysis:**\n✅ \"Compare the average deal size between New York and California offices for Q1 2024\"\n✅ \"What's the difference in customer lifetime value between monthly and annual subscribers as of June 2024?\"\n❌ \"Which region is better?\" (better at what?)\n❌ \"Compare everything\" (too broad)\n\nRemember: After submitting, use wait_for_completion to get results.\n\nExamples: Returns: {\n  \"session_id\": \"created session ID\",\n  \"inquiry_id\": \"inquiry ID for tracking\",\n  \"status\": \"submitted\",\n  \"message\": \"...\"\n}\n\n⚠️ COMMON PITFALLS AND HOW TO FIX THEM:\n\n**1. ASKING REDUNDANT QUESTIONS**\n❌ \"When did Deal Genius churn?\" (when you already know it was May 2024)\n✅ \"What was Deal Genius's revenue in the 3 months before churning in May 2024?\"\n\n**2. BEING TOO VAGUE**\n❌ \"Show me publishers\"\n✅ \"List all active publishers with their monthly revenue for June 2024, sorted by revenue descending\"\n\n**3. MISSING CONTEXT**\n❌ \"What's the conversion rate?\"\n✅ \"What's the trial-to-paid conversion rate for Enterprise tier prospects in Q2 2024?\"\n\n**4. WRONG GRANULARITY**\n❌ \"Revenue for each customer for all time\" (too granular, too broad)\n✅ \"Top 20 customers by revenue for Q2 2024 with their subscription tiers\"\n\n**5. ASSUMING DATA EXISTS**\n❌ Asking about \"user sentiment scores\" without checking if entity exists\n✅ First: search_semantic_layer for \"sentiment\", then formulate question based on what's available\n",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "question": {
+              "type": "string",
+              "description": "The question to ask"
+            },
+            "dimensions": {
+              "type": "object",
+              "description": "Optional dimensions/filters for the query",
+              "properties": {},
+              "additionalProperties": true
+            },
+            "prompts_overrides": {
+              "type": "object",
+              "description": "Plain text instructions to inject into specific prompts during sub-inquiry processing",
+              "properties": {
+                "entity_classification": {
+                  "type": "string",
+                  "description": "Instructions for entity classification prompt. Example: 'Use entities tx_revenue_123 and tx_tier_456'"
+                },
+                "sql_generation": {
+                  "type": "string",
+                  "description": "Instructions for SQL generation prompt. Example: 'GROUP BY customer_tier. Simple SQL only.'"
+                }
+              },
+              "additionalProperties": false
+            },
+            "data_source_id": {
+              "type": "string",
+              "description": "The data_source_id to scope this question to. Required when the account has multiple data sources; pick from `taxonomies_overview` returned by `contextualize`. The BE selects the right active taxonomy for that source. API sources (entries with `access_mode: 'api_read_only'`) are accepted too: Jedify plans and executes the API calls server-side, and the answer comes back the same way a warehouse one does, with `sql_query` null. Ask the business question plainly - do not prescribe operations, properties, filters or traversal steps."
+            }
+          },
+          "required": [
+            "question"
+          ]
+        },
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        },
+        "_meta": {
+          "_fastmcp": {
+            "tags": []
+          }
+        }
+      },
+      {
+        "name": "ask_a_research_question",
+        "description": "Submit a research question that triggers a multi-step autonomous research investigation. Unlike ask_a_single_question (which runs a single SQL query through the agent pipeline), this tool launches a research agent that autonomously plans and executes multiple queries, analyzes results, and produces a comprehensive research report.\n\nWhen to use: Use this when:\n- The question requires deep, multi-step analysis across multiple data points\n- You need exploratory investigation rather than a single direct answer\n- The question involves complex reasoning, trend analysis, or root cause investigation\n- A single query would not be sufficient to fully answer the question\n\nDo NOT use this for simple, direct questions (use ask_a_single_question instead).\n\nExamples: Returns: {\n  \"session_id\": \"created session ID\",\n  \"inquiry_id\": \"inquiry ID for tracking\",\n  \"status\": \"submitted\",\n  \"message\": \"...\"\n}\n\nNote: Research questions take longer than regular questions as they perform multi-step autonomous analysis. Use wait_for_completion with the returned inquiry_id to get results.\n\n⚠️ COMMON PITFALLS AND HOW TO FIX THEM:\n\n**1. ASKING REDUNDANT QUESTIONS**\n❌ \"When did Deal Genius churn?\" (when you already know it was May 2024)\n✅ \"What was Deal Genius's revenue in the 3 months before churning in May 2024?\"\n\n**2. BEING TOO VAGUE**\n❌ \"Show me publishers\"\n✅ \"List all active publishers with their monthly revenue for June 2024, sorted by revenue descending\"\n\n**3. MISSING CONTEXT**\n❌ \"What's the conversion rate?\"\n✅ \"What's the trial-to-paid conversion rate for Enterprise tier prospects in Q2 2024?\"\n\n**4. WRONG GRANULARITY**\n❌ \"Revenue for each customer for all time\" (too granular, too broad)\n✅ \"Top 20 customers by revenue for Q2 2024 with their subscription tiers\"\n\n**5. ASSUMING DATA EXISTS**\n❌ Asking about \"user sentiment scores\" without checking if entity exists\n✅ First: search_semantic_layer for \"sentiment\", then formulate question based on what's available\n",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "question": {
+              "type": "string",
+              "description": "The research question to investigate"
+            },
+            "dimensions": {
+              "type": "object",
+              "description": "Optional dimensions/filters for the research",
+              "properties": {},
+              "additionalProperties": true
+            }
+          },
+          "required": [
+            "question"
+          ]
+        },
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        },
+        "_meta": {
+          "_fastmcp": {
+            "tags": []
+          }
+        }
+      },
+      {
+        "name": "ask_questions",
+        "description": "Ask multiple questions in parallel, each in its own dedicated session. This tool is optimized for batch processing of multiple independent queries.\n\nWhen to use: Use this when:\n- You have multiple independent questions to ask\n- You want to analyze different aspects of the data simultaneously\n- You want to submit all questions at once\n\nHow to use: 🎯 JEDIFY QUESTION MASTERY PRINCIPLES:\n\n0. **MANDATORY PRE-INVESTIGATION CHECKPOINT**\n   - STEP 1: Check if clarification needed (see detailed protocol in system instructions)\n   - STEP 2: Evaluate if strategy confirmation needed (see Strategy Confirmation Protocol in system instructions)\n   - STEP 3: Execute investigation with quality checks\n\n   **Clarification Protocol (Do this first, only once)**:\n   - After contextualizing, verify that critical terms in the user's question exist in the account context or semantic layer\n   - If the user references a SPECIFIC entity using \"the\", \"this\", \"our\" that doesn't exist and has no obvious interpretation, ask for clarification ONCE\n   - After asking once (or if terms are clear), proceed with best interpretation - never ask for clarification again\n\n   **Strategy Confirmation Protocol (Before asking 8+ questions)**:\n   - If planning 8+ queries, multi-phase investigation, or 2+ risk factors present → Confirm strategy with user first\n   - Present proposed approach with alternatives\n   - Wait for user approval before executing\n   - See full protocol in system instructions\n\n1. **SEMANTIC LAYER AWARENESS**\n   - Every question must target entities that exist in the semantic layer and be fully answerable by the entities (i.e. - the SQL query must be able to answer the question)\n   - Verify entity availability BEFORE asking (use get_semantic_layer_entities)\n   - Check entity's SQL query and attributes support your question's requirements\n\n2. **EXTREME SPECIFICITY**\n   - Include EXACT names: \"Deal Genius\" not \"that publisher\"\n   - Include EXACT dates: \"May 2024\" not \"recently\"\n   - Include EXACT metrics: \"monthly recurring revenue\" not \"revenue\"\n   - Include EXACT filters when known: \"for Enterprise tier customers\"\n\n3. **PROGRESSIVE INTELLIGENCE**\n   - Start broad, then drill down based on results\n   - Each question should build on insights from previous answers\n   - Never ask what you already know from previous responses\n   - Use discovered values (e.g., publisher names, date ranges) in follow-up questions\n\n4. **FAILURE INTROSPECTION (zero-row response)**\n   On zero rows, the status response includes `grounding_results` (how terms resolved) and `used_columns_with_sample_data` (actual values in filtered columns)\n   Guidance:\n   - Search in `grounding_results` and `used_columns_with_sample_data` any inforamtion just could be evidence and reassurance that we might want to retry.\n   - Maximum ONE retry per question. A second zero-row response = ACCEPT NO-DATA.\n   - Every retry MUST cite the specific diagnostic field and value that justifies it. No citation → ACCEPT NO-DATA.\n   - When accepting, tell the user *why* using evidence (\"status column only contains 'ACTIVE'/'CANCELED'\"). Never say \"no data\" without citing the diagnostic.\n\n5. **CONTEXT UTILIZATION**\n   - Use company glossary terms correctly\n   - Respect business model specifics (SaaS metrics, publisher relationships, etc.)\n   - Apply learned context from contextualize and previous questions\n\n🔍 STRATEGIC DATA COLLECTION FOR CAUSAL ANALYSIS:\n\n**FOR \"WHY\" QUESTIONS - STRUCTURE YOUR DATA COLLECTION:**\n\nWhen investigating causation, prioritize questions that reveal:\n\n1. **BASELINE METRICS** (Essential - ask first):\n   - What exactly happened and when?\n   - Quantify the trend/issue with specific metrics\n   - Example: \"What were the month-over-month growth rates for LLM pages from July to September 2025?\"\n\n2. **TIMING CORRELATIONS** (Essential - ask first):\n   - What business events coincided with the trends?\n   - When did the changes occur relative to product releases, campaigns, etc.?\n   - Example: \"What product feature releases or marketing campaigns occurred during August 2025 for the LLM product?\"\n\n3. **BEHAVIORAL CHANGES** (Supporting - if question budget allows):\n   - How did user actions/patterns shift?\n   - Which user segments drove the changes?\n   - Example: \"How did user engagement patterns change on high-growth LLM pages between July-September 2025?\"\n\n4. **OUTCOME CORRELATIONS** (Supporting - if question budget allows):\n   - How do the trends connect to business results?\n   - What downstream effects occurred?\n   - Example: \"How do conversion rates differ between high-growth pages and average-performing pages?\"\n\n**CAUSAL QUESTION PROGRESSION:**\n- Start with WHAT happened (metrics, timing)\n- Then ask WHEN it coincided with business events\n- Finally explore HOW it affected user behavior and outcomes\n\nThis ensures your questions collect data that enables causal inference, not just descriptive reporting.\n\n🔄 MULTI-QUESTION BEST PRACTICES:\n\n**WHEN TO USE MULTIPLE QUESTIONS:**\n- Analyzing different aspects of the same problem\n- Gathering comprehensive metrics for a report\n- Comparing multiple entities or time periods\n- Building a complete picture from different data angles\n\n**PARALLEL QUESTION DESIGN:**\n1. Each question must be INDEPENDENT (don't reference other questions' results)\n2. Questions should complement each other to build complete insight\n3. Organize by theme or analysis goal\n\n**EFFECTIVE PATTERNS:**\n\n📊 **Comprehensive Metric Set:**\n[\n  \"What is Deal Genius's total revenue for Q2 2024?\",\n  \"What is Deal Genius's customer count as of June 30, 2024?\",\n  \"What is Deal Genius's average revenue per customer for Q2 2024?\",\n  \"What is Deal Genius's churn rate for Q2 2024?\"\n]\n\n🔍 **Multi-Dimensional Analysis:**\n[\n  \"What are the top 10 publishers by revenue in June 2024?\",\n  \"What are the top 10 publishers by customer count in June 2024?\",\n  \"What are the top 10 publishers by growth rate comparing June 2024 to June 2023?\",\n  \"Which publishers had churn rates above 5% in June 2024?\"\n]\n\n📈 **Time Series Comparison:**\n[\n  \"What was the total MRR for January 2024?\",\n  \"What was the total MRR for February 2024?\",\n  \"What was the total MRR for March 2024?\",\n  \"What was the total MRR for April 2024?\",\n  \"What was the total MRR for May 2024?\",\n  \"What was the total MRR for June 2024?\"\n]\n\n📝 HOW TO FORMULATE PERFECT JEDIFY QUESTIONS:\n\n**BEFORE YOU ASK:**\n1. Check semantic layer has the entity (get_semantic_layer_entities)\n2. Verify entity's SQL includes needed fields\n3. Confirm date ranges in entity's data coverage\n\n**QUESTION STRUCTURE:**\n[Metric] + [Specific Entity] + [Time Period] + [Optional Filters] + [Optional Comparison]\n\n**EXAMPLES BY TYPE:**\n\n📊 **Metric Analysis:**\n✅ \"What is the monthly recurring revenue for Deal Genius in Q2 2024?\"\n✅ \"Show me the churn rate for Enterprise customers from January to June 2024\"\n❌ \"What's our revenue?\" (too vague)\n❌ \"Show churn\" (missing specifics)\n\n🔍 **Trend Investigation:**\n✅ \"How has Deal Genius's product adoption changed month-over-month from January to May 2024?\"\n✅ \"Compare subscription revenue growth between Q1 and Q2 2024 for all publishers\"\n❌ \"Is revenue growing?\" (not specific)\n❌ \"Show trends\" (what trends? for whom? when?)\n\n🎯 **Root Cause Analysis:**\n✅ \"What were the top 5 reasons for customer churn in May 2024 for the SMB segment?\"\n✅ \"Which product features had the lowest usage among churned Enterprise customers in Q2 2024?\"\n❌ \"Why are we losing customers?\" (too broad)\n❌ \"What's wrong with our product?\" (not measurable)\n\n📈 **Comparative Analysis:**\n✅ \"Compare the average deal size between New York and California offices for Q1 2024\"\n✅ \"What's the difference in customer lifetime value between monthly and annual subscribers as of June 2024?\"\n❌ \"Which region is better?\" (better at what?)\n❌ \"Compare everything\" (too broad)\n\n\n🎯 TONE AND REASONING PRINCIPLES:\n\n**NEUTRAL, PROFESSIONAL TONE:**\n- Avoid sensationalized language: Use \"declined by 45%\" not \"catastrophic decline\"\n- Let data speak through numbers, not emotional adjectives\n- Avoid: \"explosive\", \"devastating\", \"alarming\", \"stunning\", \"plummeting\", \"skyrocketing\"\n- Use: Precise percentages, absolute values, rates of change\n\n**HEDGING REQUIREMENTS:**\n- ALWAYS hedge interpretations and causal claims - never present speculation as fact\n- For interpretations: \"This suggests...\", \"This could indicate...\", \"One possible explanation is...\"\n- For causal claims: \"This could be explained by...\", \"One contributing factor may be...\"\n- For speculation: \"It's possible that...\", \"Among other potential factors...\"\n- Definitive language ONLY for direct measurements: \"The data shows X\", \"Metric A is 40% higher than B\"\n\n**LEAVE ROOM FOR ALTERNATIVES:**\n- Never present your explanation as THE definitive answer\n- Add qualifiers: \"...among other potential factors\", \"...though other factors may also contribute\"\n- Acknowledge complexity: \"While [explanation] seems most likely, alternative explanations include...\"\n- State what data would be needed: \"To definitively confirm this, we would need...\"\n\n**CONFIDENCE CALIBRATION:**\n- Match language strength to evidence strength\n- Weak evidence → \"One possibility is...\", \"This might suggest...\"\n- Moderate evidence → \"Evidence suggests...\", \"This could explain...\"\n- Strong evidence → \"Multiple data points suggest...\" (still NOT \"This proves...\")\n- Insufficient evidence → \"Available data cannot determine...\"\n\n**BANNED PHRASES:**\n- Never use: \"This proves...\", \"The cause is...\", \"Obviously...\", \"Without a doubt...\", \"The only explanation is...\"\n- Avoid overconfidence and sensationalism\n\n**KEY PRINCIPLE**: Your role is to inform, not persuade or dramatize. When in doubt, be more tentative rather than more certain.\n\n\nRemember: Each question runs independently - include ALL context in EACH question.\nAfter submitting, use wait_for_completion to get results.\n\n\nExamples: Returns: {\n  \"session_ids\": [\"session_id1\", \"session_id2\", ...],  // List of all created sessions\n  \"inquiry_ids\": [\"inquiry_id1\", \"inquiry_id2\", ...],  // All successful inquiry IDs\n  \"results\": [\n    {\n      \"question\": \"original question text\",\n      \"session_id\": \"dedicated session for this question\",\n      \"inquiry_id\": \"inquiry ID\",\n      \"status\": \"submitted/submission_failed\",\n      \"dimensions\": {...},\n      \"error\": \"...\" // if submission failed\n    },\n    ...\n  ],\n  \"summary\": {\n    \"total_questions\": 3,\n    \"successful_submissions\": 2,\n    \"failed_submissions\": 1,\n    \"duration_seconds\": 0.5\n  },\n  \"message\": \"...\"\n}\n\n⚠️ COMMON PITFALLS AND HOW TO FIX THEM:\n\n**1. ASKING REDUNDANT QUESTIONS**\n❌ \"When did Deal Genius churn?\" (when you already know it was May 2024)\n✅ \"What was Deal Genius's revenue in the 3 months before churning in May 2024?\"\n\n**2. BEING TOO VAGUE**\n❌ \"Show me publishers\"\n✅ \"List all active publishers with their monthly revenue for June 2024, sorted by revenue descending\"\n\n**3. MISSING CONTEXT**\n❌ \"What's the conversion rate?\"\n✅ \"What's the trial-to-paid conversion rate for Enterprise tier prospects in Q2 2024?\"\n\n**4. WRONG GRANULARITY**\n❌ \"Revenue for each customer for all time\" (too granular, too broad)\n✅ \"Top 20 customers by revenue for Q2 2024 with their subscription tiers\"\n\n**5. ASSUMING DATA EXISTS**\n❌ Asking about \"user sentiment scores\" without checking if entity exists\n✅ First: search_semantic_layer for \"sentiment\", then formulate question based on what's available",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "questions": {
+              "type": "array",
+              "description": "List of questions to ask in parallel (up to 5 questions)",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "question": {
+                    "type": "string",
+                    "description": "The question to ask"
+                  },
+                  "dimensions": {
+                    "type": "object",
+                    "description": "Optional dimensions/filters for this specific query",
+                    "properties": {},
+                    "additionalProperties": true
+                  },
+                  "prompts_overrides": {
+                    "type": "object",
+                    "description": "Plain text instructions to inject into specific prompts during sub-inquiry processing",
+                    "properties": {
+                      "entity_classification": {
+                        "type": "string",
+                        "description": "Instructions for entity classification prompt. Example: 'Use entities tx_revenue_123 and tx_tier_456'"
+                      },
+                      "sql_generation": {
+                        "type": "string",
+                        "description": "Instructions for SQL generation prompt. Example: 'GROUP BY customer_tier. Simple SQL only.'"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "data_source_id": {
+                    "type": "string",
+                    "description": "The data_source_id to scope this question to. Required when the account has multiple data sources; pick from `taxonomies_overview` returned by `contextualize`. The BE selects the right active taxonomy for that source. API sources (entries with `access_mode: 'api_read_only'`) are accepted too: Jedify plans and executes the API calls server-side, and the answer comes back the same way a warehouse one does, with `sql_query` null. Ask the business question plainly - do not prescribe operations, properties, filters or traversal steps."
+                  }
+                },
+                "required": [
+                  "question"
+                ]
+              },
+              "minItems": 1,
+              "maxItems": 5
+            }
+          },
+          "required": [
+            "questions"
+          ]
+        },
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        },
+        "_meta": {
+          "_fastmcp": {
+            "tags": []
+          }
+        }
+      },
+      {
+        "name": "wait_for_completion",
+        "description": "Wait for multiple inquiries to complete and return their results. This tool handles polling for all inquiries in parallel. Supports both regular agent inquiries and research agent inquiries.\n\nWhen to use: Use this after:\n- ask_question (when you have the inquiry_id)\n- quick_question (to get the actual results)\n- multi_question (to wait for all results)\n- ask_a_research_question or ask_an_agent (the result follows the inquiry's stored type)\n\nHow to use: This tool:\n1. Monitors multiple inquiries concurrently\n2. Returns as soon as all are complete OR timeout is reached\n3. Handles partial results gracefully\n4. Provides detailed status for each inquiry\n\nIMPORTANT: If an inquiry is still processing after ~3 minutes, this tool returns status=\"in_progress\" with a message instead of waiting indefinitely. When you receive \"in_progress\", you MUST call wait_for_completion again with the same inquiry_ids to continue waiting. Keep calling until you get \"done\" or \"failed\".\n\nDATA ONLY, NO TEXTUAL ANSWER: agent inquiries (inquiry_type='agent', from ask_a_question / ask_a_single_question / ask_questions) return data only, not a textual answer, so there is no `answer` field. This is expected, not an error. Infer the textual answer yourself from `data` and `sql_query` (for API sources, `api_steps`). Research inquiries (inquiry_type='research') do return a textual `final_answer`.\n\nExamples: Returns: {\n  \"results\": {\n    \"inquiry_id1\": {\n      \"status\": \"done/failed/timeout/in_progress\",\n      \"sql_query\": \"...\",\n      \"data\": {...},\n      \"error\": \"...\", // if failed\n      \"message\": \"...\" // if in_progress - explains to call again\n    },\n    \"inquiry_id2\": {...},\n    ...\n  },\n  \"summary\": {\n    \"total_inquiries\": 3,\n    \"completed\": 2,\n    \"failed\": 0,\n    \"timeout\": 0,\n    \"in_progress\": 1,\n    \"duration_seconds\": 180\n  }\n}",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "inquiry_ids": {
+              "type": "array",
+              "description": "List of inquiry IDs to wait for completion",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "maxItems": 5
+            },
+            "return_partial_results": {
+              "type": "boolean",
+              "description": "If true, return results even if some inquiries timeout or fail (default: true)",
+              "default": true
+            },
+            "inquiry_type": {
+              "type": "string",
+              "enum": [
+                "agent",
+                "research"
+              ],
+              "description": "Optional hint. The server reads each inquiry's stored type (agent, research, or a custom agent's run, which is research) and shapes the result accordingly, whatever is passed here.",
+              "default": "agent"
+            }
+          },
+          "required": [
+            "inquiry_ids"
+          ]
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "_meta": {
+          "_fastmcp": {
+            "tags": []
+          }
+        }
+      },
+      {
+        "name": "check_question_status",
+        "description": "Check if an inquiry has completed processing. CRITICAL: You must poll this until status.general is 'done' before proceeding. Status 'processing' means still working. Status 'done' means complete - you can then get the results from session data. Never assume an inquiry is done without checking. Research and custom-agent inquiries return the research status shape; read is_complete instead. A completed agent inquiry also reports eligible_for_test_set (and test_set_eligibility_reason when false) - read it before passing the id to create_test_set.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "inquiry_id": {
+              "type": "string",
+              "description": "The inquiry ID to check status for"
+            },
+            "do_not_truncate": {
+              "type": "boolean",
+              "description": "If true, do not truncate the data when its longer than 200 rows (default: false)",
+              "default": false
+            },
+            "inquiry_type": {
+              "type": "string",
+              "enum": [
+                "agent",
+                "research"
+              ],
+              "description": "Optional hint. The server reads each inquiry's stored type (agent, research, or a custom agent's run, which is research) and shapes the result accordingly, whatever is passed here.",
+              "default": "agent"
+            }
+          },
+          "required": [
+            "inquiry_id"
+          ]
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "_meta": {
+          "_fastmcp": {
+            "tags": []
+          }
+        }
+      },
+      {
+        "name": "get_questions_data",
+        "description": "Get complete data for multiple inquiries (or single inquiry) including status, SQL and data results. This is the PREFERRED method for fetching inquiry data. Up to 5 inquiries can be fetched at once. For research inquiries, returns final_answer, progress, and operations instead of answer/sql/data.\n\nWhen to use: Use this when:\n- You have specific inquiry IDs from ask_question, quick_question, multi_question, or ask_a_research_question\n- You want to check the status and get data for multiple inquiries\n- You need the complete data (status, SQL and result rows)\n- Research and custom-agent inquiries return final_answer, progress and operations; the type is resolved server-side\n\nHow to use: This tool:\n1. Fetches data for multiple inquiries in parallel\n2. Returns complete information for each inquiry\n3. More efficient than calling get_inquiry_status multiple times\n4. Better than get_session_data when you have specific inquiry IDs\n\nDATA ONLY, NO TEXTUAL ANSWER: agent inquiries (inquiry_type='agent', from ask_a_question / ask_a_single_question / ask_questions) return data only, not a textual answer, so there is no `answer` field. This is expected, not an error. Infer the textual answer yourself from `data` and `sql_query` (for API sources, `api_steps`). Research inquiries (inquiry_type='research') do return a textual `final_answer`.\n\nExamples: Returns: {\n  \"inquiry_id1\": {\n    \"status\": {...},\n    \"sql_query\": \"...\",\n    \"data\": {...},\n    \"thinking\": {...}\n  },\n  \"inquiry_id2\": {...},\n  ...\n}",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "inquiry_ids": {
+              "type": "array",
+              "description": "List of inquiry IDs to get data for",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "maxItems": 5
+            },
+            "do_not_truncate": {
+              "type": "boolean",
+              "description": "If true, do not truncate the data when its longer than 200 rows (default: false)",
+              "default": false
+            },
+            "inquiry_type": {
+              "type": "string",
+              "enum": [
+                "agent",
+                "research"
+              ],
+              "description": "Optional hint. The server reads each inquiry's stored type (agent, research, or a custom agent's run, which is research) and shapes the result accordingly, whatever is passed here.",
+              "default": "agent"
+            }
+          },
+          "required": [
+            "inquiry_ids"
+          ]
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "_meta": {
+          "_fastmcp": {
+            "tags": []
+          }
+        }
+      },
+      {
+        "name": "stop_question",
+        "description": "Stop a running inquiry",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "inquiry_id": {
+              "type": "string",
+              "description": "The inquiry ID to stop"
+            }
+          },
+          "required": [
+            "inquiry_id"
+          ]
+        },
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "_meta": {
+          "_fastmcp": {
+            "tags": []
+          }
+        }
+      },
+      {
+        "name": "create_share_link",
+        "description": "Create a Jedify share link for a session, so a person can open the full answer - narrative, charts and data excerpts - in the Jedify app. Returns { share_id, share_url }.\n\nWhen to use: Use when the user wants a link to an answer - to open it in Jedify, send it to a colleague or keep it for later. Opening the link requires a Jedify login in the same account; it is not a public internet link.\n\nHow to use: Only after the session's questions have FINISHED - a session with a still-running inquiry is refused (409), so wait_for_completion first. Pass the session_id returned by ask_a_single_question / ask_questions / ask_a_research_question. Sharing the same session again returns the same link, unless a new question was asked in it since.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "session_id": {
+              "type": "string",
+              "description": "The session (thread) to share - the session_id returned when the question was submitted."
+            }
+          },
+          "required": [
+            "session_id"
+          ]
+        },
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        },
+        "_meta": {
+          "_fastmcp": {
+            "tags": []
+          }
+        }
+      },
+      {
+        "name": "list_agents",
+        "description": "List the custom agents this user's account has built in Jedify. Each agent is a purpose-built expert with its own persona, semantic-layer entity scope, instructions and analysis plan - for example a revenue analyst, a churn watchdog or a data-quality reviewer. Returns for each: agent_id, name, description, sample_questions, produces_reports.\n\nWhen to use: Use this when:\n- The user refers to one of \"their\" or \"our\" agents by name or by role (\"ask our revenue agent...\")\n- A question falls squarely inside a domain one of these agents was built for - the agent already carries the right entities and business definitions, so it will usually beat a generic question\n- You want to know what expertise this account has already codified before investigating from scratch\n\nOnly ACTIVE agents are returned - drafts and disabled agents cannot be talked to.\n\nHow to use: Call with no arguments to list the account's active agents. Read each agent's `description` and `sample_questions` to judge what it is expert in - `sample_questions` is the clearest signal of the questions it was designed to answer. Then talk to your chosen agent with ask_an_agent, passing its `agent_id`. If the response carries `truncated: true` there are more agents than were returned; use `search` to reach them.\n\nExamples: Returns: {\n  \"agents\": [\n    {\n      \"agent_id\": \"agent_...\",\n      \"name\": \"Revenue Analyst\",\n      \"description\": \"Tracks ARR, expansion and churn across segments\",\n      \"sample_questions\": [\"How did ARR move last quarter?\", \"Which segment expanded most?\"],\n      \"produces_reports\": true,\n      \"last_activity_at\": \"2026-08-01T09:12:00\"\n    }\n  ],\n  \"returned\": 1,\n  \"total\": 1\n}\n\n`produces_reports: true` means the agent has a standard structured report it can generate on demand - ask for \"the standard report\" (or \"run the agent\") in ask_an_agent and it will produce that instead of an ad-hoc answer.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "search": {
+              "type": "string",
+              "description": "Optional case-insensitive filter, matched against both the agent name and its description."
+            },
+            "limit": {
+              "type": "integer",
+              "description": "Maximum number of agents to return (default and max 100).",
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          "required": []
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "_meta": {
+          "_fastmcp": {
+            "tags": []
+          }
+        }
+      },
+      {
+        "name": "ask_an_agent",
+        "description": "Ask a question of one of the account's custom agents. The agent answers as the expert it was built to be - its own persona, instructions, analysis plan and semantic-layer entity scope are all applied automatically, so you do not need to (and cannot) supply them here. Returns immediately with a session_id and inquiry_id; the answer is produced asynchronously.\n\nWhen to use: Use this instead of ask_a_question / ask_a_research_question whenever an agent from list_agents covers the topic - the agent carries curated entities and business definitions that a generic question does not, so its answer is better grounded.\n\nCall list_agents first if you do not already have an agent_id.\n\nFor anything outside every agent's remit, use ask_a_research_question instead.\n\nHow to use: This is ASYNCHRONOUS. It returns a session_id and an inquiry_id, not an answer. To collect the answer call wait_for_completion with inquiry_ids=[\"<the inquiry_id>\"] - the parameter is PLURAL and takes a list, so passing inquiry_id fails - and inquiry_type='research'. Expect minutes, not seconds: the agent runs a multi-step investigation, so poll rather than assuming it stalled.\n\nTWO RULES THAT MATTER:\n1. To ask a follow-up, ALWAYS pass back the session_id you were given, together with the same agent_id. Omitting session_id starts a brand-new conversation with no memory of what was said, so the agent loses the thread and may redo work it already did. Never pair a session_id with a different agent's agent_id - that is refused rather than answered.\n2. The agent must be ACTIVE. A 422 on the first question means it is not - call list_agents to see what actually is.\n\nRead the `hint` on any error before retrying: it distinguishes a bad agent_id (re-list) from a bad session_id (retry without it), and retrying the wrong one loops.\n\nExamples: Returns: {\n  \"agent_id\": \"agent_...\",\n  \"session_id\": \"session_...\",\n  \"inquiry_id\": \"inquiry_...\",\n  \"status\": \"submitted\",\n  \"message\": \"...\"\n}\n\nFirst question:  ask_an_agent(agent_id=\"agent_x\", question=\"How did ARR move last quarter?\")\nFollow-up:       ask_an_agent(agent_id=\"agent_x\", question=\"Break that down by segment\", session_id=\"session_...\")\n\nWhat THIS tool returns is a receipt, not an answer: status \"submitted\" means the agent has started working, nothing more. Never relay it to the user as the result. The answer exists only in the wait_for_completion response - relay that, and only that.\n\nThe conversation is saved in Jedify but is not listed in the user's in-app activity feed, so do not tell them to go and look for it there.\n\n⚠️ COMMON PITFALLS AND HOW TO FIX THEM:\n\n**1. ASKING REDUNDANT QUESTIONS**\n❌ \"When did Deal Genius churn?\" (when you already know it was May 2024)\n✅ \"What was Deal Genius's revenue in the 3 months before churning in May 2024?\"\n\n**2. BEING TOO VAGUE**\n❌ \"Show me publishers\"\n✅ \"List all active publishers with their monthly revenue for June 2024, sorted by revenue descending\"\n\n**3. MISSING CONTEXT**\n❌ \"What's the conversion rate?\"\n✅ \"What's the trial-to-paid conversion rate for Enterprise tier prospects in Q2 2024?\"\n\n**4. WRONG GRANULARITY**\n❌ \"Revenue for each customer for all time\" (too granular, too broad)\n✅ \"Top 20 customers by revenue for Q2 2024 with their subscription tiers\"\n\n**5. ASSUMING DATA EXISTS**\n❌ Asking about \"user sentiment scores\" without checking if entity exists\n✅ First: search_semantic_layer for \"sentiment\", then formulate question based on what's available\n",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "agent_id": {
+              "type": "string",
+              "description": "The agent to talk to - the `agent_id` from list_agents."
+            },
+            "question": {
+              "type": "string",
+              "description": "What to ask the agent, in natural language."
+            },
+            "session_id": {
+              "type": "string",
+              "description": "Omit on the FIRST question to start a new conversation. On every follow-up, pass back the `session_id` this tool returned so the agent keeps the conversation's context."
+            }
+          },
+          "required": [
+            "agent_id",
+            "question"
+          ]
+        },
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        },
+        "_meta": {
+          "_fastmcp": {
+            "tags": []
+          }
+        }
+      },
+      {
+        "name": "load_skill",
+        "description": "Load the full guidance of one of the account's agent skills. A skill is a named markdown playbook a user of this account authored for the Jedify agent - a repeatable analysis, a reporting routine, a way of working. `contextualize` lists the skills available to you (skill_id, name, description); this tool returns the chosen skill's full `content` for you to follow.\n\nWhen to use: Use this when:\n- The user asks to run, execute or use a skill by name (\"run the weekly revenue review\")\n- The user's request matches a skill's description in the `skills` list from `contextualize`\n\nLoad the skill BEFORE you start answering. If `contextualize` returned no `skills`, this account has none available to you - do not guess an id.\n\nHow to use: Pass the `skill_id` from the `skills` list. Follow the returned `content` as your top-priority guidance for the rest of the conversation: its steps and intent take precedence over your default approach, and if a step cannot be followed say so rather than silently skipping it. Skills are written for the Jedify in-app agent, so they may mention tools that are not in your tool list - use the closest relevant tool or capability you do have (ask_a_single_question / ask_questions for data, run_sql_query for a direct lookup) to achieve what the step asks for.\n\nExamples: Returns: {\n  \"skill_id\": \"sk_...\",\n  \"name\": \"Weekly revenue review\",\n  \"description\": \"Pulls last week's revenue by segment and flags anomalies\",\n  \"content\": \"# Weekly revenue review ... (the full markdown playbook)\",\n  \"message\": \"...\"\n}\n\nload_skill(skill_id=\"sk_1a2b3c4d\")\n\nA 404 means no skill available to you has that id - re-check the `skills` list from `contextualize` rather than retrying.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "skill_id": {
+              "type": "string",
+              "description": "The skill's id (sk_...), taken from the `skills` list returned by `contextualize`."
+            }
+          },
+          "required": [
+            "skill_id"
+          ]
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "_meta": {
+          "_fastmcp": {
+            "tags": []
+          }
+        }
+      },
+      {
+        "name": "get_semantic_layer_entities",
+        "description": "SEMANTIC LAYER DISCOVERY PHASE: Get complete information for up to 10 taxonomy nodes in one call; split larger sets across multiple calls. Returns classifier data for warehouse entities. API entities include the callable source and node, declared operations and parameters, and the source card needed to plan call_api. Use this during discovery to understand entities and verify their answerability for your planned questions.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "node_ids": {
+              "type": "array",
+              "description": "List of node IDs to get detailed information for (up to 10)",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "maxItems": 10
+            },
+            "taxonomy_id": {
+              "type": "string",
+              "description": "taxonomy_id of the entities. Pick from `taxonomies_overview` returned by `contextualize`. Required when the account has multiple active taxonomies; optional otherwise."
+            }
+          },
+          "required": [
+            "node_ids"
+          ]
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "_meta": {
+          "_fastmcp": {
+            "tags": []
+          }
+        }
+      },
+      {
+        "name": "search_semantic_layer",
+        "description": "Search for taxonomy entities by name. Use this to find entities related to specific topics like 'churn', 'revenue', 'publishers', 'performance', etc. This helps identify relevant data sources for targeted analysis. API-source entities are additionally matched on their descriptions and field names, so business terms like 'renewals' or 'discount' will find them; each such result says which part matched (`matched_on`) and quotes it (`snippet`). An API result's `label` is the slug you address the entity by (pass it as `call_api`'s `node`); its `display_label`, when present, is for display only.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "search_term": {
+              "type": "string",
+              "description": "The term to search for in entity names"
+            }
+          },
+          "required": [
+            "search_term"
+          ]
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "_meta": {
+          "_fastmcp": {
+            "tags": []
+          }
+        }
+      },
+      {
+        "name": "call_api",
+        "description": "Execute ONE declared read operation against a connected API source (e.g. HubSpot) and return its raw response {status, data}. CRITICAL: use RARELY - the semantic layer is the primary interface for API sources: ask_a_single_question / ask_questions with the source's data_source_id, and Jedify plans, pages, joins and computes the whole retrieval for you. Read-only: only operations declared on the entity may run.\n\nWhen to use: Only when one of these applies:\n1. You need ONE raw record or page exactly as the vendor returns it - a `describe` property catalog, a resolver such as owners, a single record by id.\n2. You are spot-checking a pipeline answer against the live API.\n3. You are EXPLORING an object the semantic layer does not model yet, to decide whether it should. Pass `object` (the vendor's own object name, e.g. 'quotes') instead of `node`, and read its property catalog with `operation: 'describe'`. A `node` that is not modelled is a 404 - that is the model speaking, not the vendor.\n\nNever to reconstruct a multi-step retrieval yourself (paging to the end, threading ids between calls, summing records) - ask a question with the source's data_source_id instead and Jedify does that server-side.\n\nHow to use: Read the entity's operations and their exact params from get_semantic_layer_entities (`api_entity`). One call = one HTTP request: no paging, no id threading, no scripts. For a next page, pass the response's cursor as the declared `after` param yourself. Returns {status, data} - the vendor's status code and decoded payload. A 4xx refusal names the declared operations / params: fix the call, do not retry it blindly.\n\nExamples: call_api({data_source_id: '<api source id from taxonomies_overview>', node: 'deal', operation: 'search', params: {filterGroups: [{filters: [{propertyName: 'dealstage', operator: 'EQ', value: 'closedwon'}]}], properties: ['dealname', 'amount'], limit: 5}})\n\nExploring something unmodelled - what does HubSpot's quotes object hold?\ncall_api({data_source_id: '<api source id>', object: 'quotes', operation: 'describe'})",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "data_source_id": {
+              "type": "string",
+              "description": "The API source to call: the `data_source_id` of an entry with `access_mode: 'api_read_only'` in `taxonomies_overview` (from `contextualize`). The BE resolves the source, its model and its credentials from this id."
+            },
+            "node": {
+              "type": "string",
+              "description": "The API entity to read, e.g. 'deal' - the entry's `label` in taxonomies_overview, or `api_entity.node` from get_semantic_layer_entities. Pass this OR `object`, not both."
+            },
+            "object": {
+              "type": "string",
+              "description": "A raw VENDOR object to explore instead of a modelled entity, e.g. 'quotes' - for looking at something the semantic layer does not describe yet, which is how you decide whether it is worth modelling. Only the source's operation TEMPLATES run this way (`describe` for the property catalog, `list`, `search`, ...), all read-only. Pass this OR `node`, not both."
+            },
+            "operation": {
+              "type": "string",
+              "description": "A declared read operation of that entity, from `api_entity.operations` (get_semantic_layer_entities). Undeclared operations and arbitrary URLs are refused."
+            },
+            "params": {
+              "type": "object",
+              "description": "Parameter values; only params declared on the operation are accepted, and a param's stated type is binding (`array` means a JSON array, a csv-string means one comma-separated string). For the next page, pass the response's cursor as the declared `after` param.",
+              "additionalProperties": true
+            }
+          },
+          "required": [
+            "data_source_id",
+            "operation"
+          ]
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": true
+        },
+        "_meta": {
+          "_fastmcp": {
+            "tags": []
+          }
+        }
+      },
+      {
+        "name": "data_collection_strategy",
+        "description": "Create your comprehensive data collection strategy. This forces structured thinking BEFORE exploring the semantic layer in detail. You MUST provide a detailed strategy document covering ALL required sections: Task description, entities, specific questions (with dates/names), Answerability validation, Expected insights, and Failure handling. This strategy guides all subsequent analysis.\n\nWhen to use: This tool MUST be called for complex analysis ('why' questions, multi-part questions, reports, etc.), after contextualization.\n\nHow to use: CRITICAL: provide the strategy as one long continuous string with no newlines, formatting, or special characters. Limit the output to up to 200 words.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "strategy": {
+              "type": "string",
+              "description": "Comprehensive strategy document as ONE CONTINUOUS STRING with no formatting, spaces, or line breaks. Must include ALL sections in this exact order: 1. Task description: Clear statement of what analysis is needed 2. Required entities: List semantic layer entities you expect to need (e.g., publisher_churn, revenue_metrics) 3. Key questions: Specific questions to ask Jedify with EXACT dates/names when known - BE SPECIFIC: 'Show Deal Genius revenue from Jan-May 2024' NOT 'Show revenue' - Include 5-10 progressive questions that build on each other 4. Answerability validation: Explain how you'll verify each question can be answered by the semantic layer 5. Expected insights: What specific insights this analysis aims to uncover 6. Failure handling: How you'll introspect and adjust if queries return no data. Use no special characters or formatting, just plain text. Limit the output to up to 200 words."
+            }
+          },
+          "required": [
+            "strategy"
+          ]
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "_meta": {
+          "_fastmcp": {
+            "tags": []
+          }
+        }
+      }
+    ]
+  }
+}
