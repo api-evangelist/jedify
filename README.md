@@ -64,6 +64,99 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Jedify is a company surfaced as a portfolio company of norwest-venture-partners and added to the API Evangelist network as a stub for enrichment. Sector: unknown. This profile is a lead awaiting the enrichment pipeline.
+Jedify is an enterprise AI platform that fuses business context with multi-source data into an AI-ready contextual "context layer" (Semantic Fusion) so companies can run grounded, natural-language analytics and autonomous data agents across their data lakes, warehouses, BI tools, databases, CRMs, and documents. It exposes an asynchronous session/inquiry REST API at be.jedify.com/api (X-API-Key auth), a published Model Context Protocol (MCP) server with Asker, Editor, and Builder modes for connecting Claude, Cursor, and other agents, plus native data connectors (Snowflake, BigQuery, Redshift, Databricks, Athena, dbt, Looker, Tableau) and embedded surfaces for Looker and Slack. Jedify raised a $24M Series A and is backed by Norwest Venture Partners.
 
-Backed by: norwest-venture-partners — https://jedify.com
+**Areas:** Company · Artificial Intelligence · Data Analytics · Business Intelligence · Semantic Layer · Context Layer · Data Agents · MCP · Enterprise AI · Natural Language Query
+
+## Jedify on APIs.io
+
+Everything profiled for Jedify is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/jedify/](https://apis.io/providers/jedify/)** — or go straight to one of the APIs or properties below.
+
+### APIs (1)
+
+- [Jedify Data Intelligence API](https://apis.io/apis/jedify/jedify-data-intelligence-api/) — Asynchronous REST API for asking natural-language analytics questions against connected data. Create a session, submit an inquiry, then poll or long-poll…
+
+### Published properties
+
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
+
+#### MCP servers (1)
+
+Model Context Protocol servers that expose the API to agents.
+
+- [jedify](https://apis.io/servers/jedify/jedify/)
+
+#### Security (2)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Jedify Authentication](https://apis.io/security/jedify/jedify-authentication/)
+- [Jedify Domain Security](https://apis.io/security/jedify/jedify-domain-security/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
+- [Website](https://jedify.com)
+- [Documentation](https://docs.jedify.com)
+- [Getting started](https://docs.jedify.com/getting-started/introduction)
+- [API reference](https://docs.jedify.com/api-reference/overview)
+- [Sign up](https://app.jedify.com/sign-up)
+- [Changelog](https://docs.jedify.com/changelog)
+- [Blog](https://jedify.com/blog/)
+- [Privacy policy](https://jedify.com/privacy/)
+
+## API Evangelist rating
+
+**Kin Score 22.4** — emerging · rubric 0.25.0 · scored 2026-10-23
+
+| Facet | Score |
+|---|---|
+| Discoverability | 75.0 |
+| Contract quality | 0.0 |
+| Contract governance | 0.0 |
+| Operational transparency | 15.8 |
+| Developer ergonomics | 54.2 |
+| Access clarity | 10.5 |
+
+**Agent readiness 14.9** — agent-aware
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | — |
+| Agentic Access | — |
+| Reversibility Documented | — |
+| MCP Server | verified |
+| Auth Clarity | bearer (partial credit) |
+| Idempotency | — |
+| Error Semantics | documented (partial credit) |
+| OpenAPI Examples | — |
+| Rate Limit Signal | — |
+| Event Surface Described | — |
+| Agent Skills | derived (partial credit) |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+| Pagination Ratio | na |
+| Operation Distinctiveness | na |
+
+**Regulatory alignment 14.5** — Horizontal (data, software, accessibility, platform)
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/jedify/](https://apis.io/providers/jedify/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for Jedify: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/jedify/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
